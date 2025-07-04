@@ -1,1 +1,422 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบถาม-ตอบสถานศึกษา - โรงเรียนบ้านวังด้ง</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+            </div>
+            <div id="loading-text" class="loading-text">กำลังดำเนินการ...</div>
+        </div>
+    </div>
+    
+    <!-- Status Notification -->
+    <div id="status-notification" class="status-notification">
+        <div id="status-icon" class="status-icon">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div id="status-message" class="status-message">ข้อความแจ้งเตือน</div>
+        <div class="status-close" onclick="hideNotification()">
+            <i class="fas fa-times"></i>
+        </div>
+    </div>
 
+    <div class="container">
+        <!-- Header -->
+        <header class="header fade-in">
+            <div class="header-content">
+                <div class="question-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="header-text">
+                    <h1 class="main-title">Q&A โรงเรียนบ้านวังด้ง</h1>
+                    <div class="title-underline"></div>
+                </div>
+            </div>
+            <p class="header-subtitle">แหล่งรวมคำถาม-คำตอบที่พบบ่อย สำหรับนักเรียน ผู้ปกครอง และประชาชนทั่วไป พร้อมระบบค้นหาและการให้คะแนนคำตอบ</p>
+        </header>
+        
+        <!-- Search Section -->
+        <div class="search-section fade-in">
+            <div class="search-container">
+                <div class="search-form">
+                    <div class="search-input-group">
+                        <div class="search-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <input type="text" id="search-input" placeholder="ค้นหาคำถาม-คำตอบ..." class="search-input">
+                    </div>
+                    <div class="search-controls">
+                        <select id="search-topic" class="topic-select">
+                            <option value="">ทุกหมวดหมู่</option>
+                        </select>
+                        <button id="clear-search" class="clear-btn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="search-results" class="search-results hidden">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="search-count">0</span> ผลลัพธ์ที่พบ
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admin Login Button & Admin Info Panel -->
+        <div class="admin-section">
+            <div id="admin-login-button" class="fade-in">
+                <button id="open-login-modal" class="admin-login-btn">
+                    <i class="fas fa-user-shield"></i> เข้าสู่ระบบผู้ดูแล
+                </button>
+            </div>
+            
+            <div id="admin-info-panel" class="admin-info-panel hidden fade-in">
+                <div class="admin-info-content">
+                    <span class="admin-status">
+                        <i class="fas fa-check-circle"></i> 
+                        <span id="admin-name">ผู้ดูแลระบบ</span>
+                    </span>
+                    <button id="logout-btn" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Admin Status Bar -->
+        <div id="admin-status-bar" class="admin-status-bar hidden fade-in">
+            <div class="status-content">
+                <div class="status-info">
+                    <i class="fas fa-user-shield status-icon"></i>
+                    <div class="status-text">
+                        <h3 class="status-title">สถานะ: เข้าสู่ระบบผู้ดูแล</h3>
+                        <p class="status-desc">คุณสามารถตอบคำถาม จัดการข้อมูล และควบคุมการแสดงผลได้</p>
+                    </div>
+                </div>
+                <div class="status-time">
+                    <span id="admin-login-time"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Column - Question Form -->
+            <div class="question-form-section fade-in">
+                <div class="card">
+                    <h2 class="section-title">
+                        <i class="fas fa-edit section-icon"></i> ส่งคำถาม
+                    </h2>
+                    
+                    <form id="questionForm" class="question-form">
+                        <div class="form-group">
+                            <label for="questionTopic" class="form-label">หมวดหมู่คำถาม <span class="required">*</span></label>
+                            <select id="questionTopic" name="questionTopic" class="form-select" required>
+                                <option value="" disabled selected>-- เลือกหมวดหมู่ --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="questionContent" class="form-label">คำถาม <span class="required">*</span></label>
+                            <textarea id="questionContent" name="questionContent" rows="4" class="form-textarea" placeholder="กรุณาระบุคำถามของคุณให้ชัดเจน..." required></textarea>
+                        </div>
+                        
+                        <div class="anonymous-section">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="isAnonymous" name="isAnonymous" class="form-checkbox">
+                                <label for="isAnonymous" class="checkbox-label">ถามแบบไม่เปิดเผยชื่อ</label>
+                            </div>
+                            <p class="anonymous-desc">หากเลือกถามแบบไม่เปิดเผยชื่อ จะไม่ต้องกรอกข้อมูลส่วนตัว</p>
+                        </div>
+                        
+                        <div id="personalInfo" class="personal-info">
+                            <div class="form-group">
+                                <label for="fullName" class="form-label">ชื่อ-นามสกุล <span class="required">*</span></label>
+                                <input type="text" id="fullName" name="fullName" class="form-input" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email" class="form-label">อีเมล</label>
+                                <input type="email" id="email" name="email" class="form-input" placeholder="สำหรับติดต่อกลับ (ไม่บังคับ)">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="attachment" class="form-label">แนบไฟล์ (ถ้ามี)</label>
+                            <input type="file" id="attachment" name="attachment" accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt" class="form-file">
+                            <p class="file-help">รองรับไฟล์ JPG, PNG, GIF, PDF, DOC, DOCX, TXT ขนาดไม่เกิน 5MB</p>
+                            <div id="file-preview" class="file-preview hidden">
+                                <div class="file-info">
+                                    <i class="fas fa-file file-icon"></i>
+                                    <span id="file-name" class="file-name"></span>
+                                    <span id="file-size" class="file-size"></span>
+                                    <button type="button" id="remove-file" class="file-remove">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="info-box">
+                            <div class="info-content">
+                                <i class="fas fa-info-circle info-icon"></i>
+                                <div class="info-text">
+                                    <h3 class="info-title">ข้อมูลสำคัญ</h3>
+                                    <ul class="info-list">
+                                        <li>• คำถามจะได้รับการตอบภายใน 3-5 วันทำการ</li>
+                                        <li>• คำถามและคำตอบอาจถูกเผยแพร่เป็นคลังความรู้สาธารณะ</li>
+                                        <li>• ข้อมูลส่วนบุคคลจะถูกเก็บเป็นความลับ</li>
+                                        <li>• คุณสามารถให้คะแนนคำตอบเพื่อปรับปรุงคุณภาพ</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-submit">
+                            <button type="submit" class="submit-btn">
+                                <i class="fas fa-paper-plane"></i> ส่งคำถาม
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Right Column - Q&A List -->
+            <div class="qa-list-section fade-in">
+                <div class="card">
+                    <div class="qa-header">
+                        <h2 class="section-title">
+                            <i class="fas fa-comments section-icon"></i> คำถาม-คำตอบ
+                        </h2>
+                        <div class="qa-controls">
+                            <button id="refresh-btn" class="control-btn">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <select id="filter-status" class="filter-select">
+                                <option value="all">ทั้งหมด</option>
+                                <option value="answered">ตอบแล้ว</option>
+                                <option value="waiting">รอตอบ</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div id="no-questions" class="no-questions">
+                        <i class="fas fa-comments no-questions-icon"></i>
+                        <p class="no-questions-title">ยังไม่มีคำถาม-คำตอบ</p>
+                        <p class="no-questions-desc">เริ่มต้นด้วยการส่งคำถามแรกของคุณ</p>
+                    </div>
+                    
+                    <div id="questions-container" class="questions-container">
+                        <!-- Questions will be dynamically added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Statistics Section (visible to admins) -->
+        <div id="admin-stats" class="admin-stats hidden fade-in">
+            <div class="card">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-bar section-icon"></i> สถิติระบบ
+                </h2>
+                <div class="stats-grid">
+                    <div class="stat-card stat-blue">
+                        <div class="stat-value" id="total-questions">0</div>
+                        <div class="stat-label">คำถามทั้งหมด</div>
+                    </div>
+                    <div class="stat-card stat-green">
+                        <div class="stat-value" id="answered-questions">0</div>
+                        <div class="stat-label">ตอบแล้ว</div>
+                    </div>
+                    <div class="stat-card stat-yellow">
+                        <div class="stat-value" id="waiting-questions">0</div>
+                        <div class="stat-label">รอตอบ</div>
+                    </div>
+                    <div class="stat-card stat-purple">
+                        <div class="stat-value" id="public-questions">0</div>
+                        <div class="stat-label">แสดงสาธารณะ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Links -->
+        <div class="navigation-section fade-in">
+            <div class="nav-card">
+                <h3 class="nav-title">เมนูหลัก</h3>
+                <div class="nav-buttons">
+                    <a href="/" class="nav-btn nav-home">
+                        <i class="fas fa-home"></i>หน้าหลัก
+                    </a>
+                    <a href="/faq" class="nav-btn nav-faq">
+                        <i class="fas fa-question-circle"></i>FAQ
+                    </a>
+                    <a href="/faq-admin" class="nav-btn nav-admin admin-only hidden">
+                        <i class="fas fa-cogs"></i>จัดการ FAQ
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <footer class="footer fade-in">
+            <div class="footer-content">
+                <p class="footer-title">© 2025 Q&A โรงเรียนบ้านวังด้ง</p>
+                <p class="footer-subtitle">พัฒนาโดย ฝ่ายเทคโนโลยีสารสนเทศ</p>
+                <div class="footer-social">
+                    <i class="fab fa-facebook"></i>
+                    <i class="fab fa-line"></i>
+                    <i class="fas fa-envelope"></i>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">เข้าสู่ระบบผู้ดูแล</h3>
+                <button id="close-login-modal" class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="adminId" class="form-label">รหัสผู้ดูแล</label>
+                    <div class="input-with-icon">
+                        <div class="input-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <input type="text" id="adminId" class="form-input" placeholder="เช่น A001">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" class="form-label">รหัสผ่าน</label>
+                    <div class="input-with-icon">
+                        <div class="input-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <input type="password" id="password" class="form-input">
+                    </div>
+                </div>
+                
+                <div class="form-submit">
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ
+                    </button>
+                </div>
+                
+                <div class="login-note">
+                    <p>สำหรับผู้ดูแลระบบเท่านั้น</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Answer Modal -->
+    <div id="answer-modal" class="modal hidden">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 class="modal-title">ตอบคำถาม</h3>
+                <button id="close-answer-modal" class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="question-details" class="question-details">
+                <!-- Question details will be shown here -->
+            </div>
+            
+            <form id="answer-form" class="answer-form">
+                <input type="hidden" id="answer-question-id">
+                
+                <div class="form-group">
+                    <label for="answer-content" class="form-label">คำตอบ <span class="required">*</span></label>
+                    <textarea id="answer-content" rows="6" class="form-textarea" placeholder="พิมพ์คำตอบที่ชัดเจนและครบถ้วน..." required></textarea>
+                </div>
+                
+                <div class="form-options">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="public-display" class="form-checkbox">
+                        <label for="public-display" class="checkbox-label">แสดงคำถาม-คำตอบนี้สาธารณะ</label>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn close-answer-modal">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="submit-btn btn-success">
+                        <i class="fas fa-reply"></i> ส่งคำตอบ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div id="rating-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">ให้คะแนนคำตอบ</h3>
+                <button id="close-rating-modal" class="modal-close">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="rating-content">
+                <p class="rating-question">คำตอบนี้มีประโยชน์กับคุณมากแค่ไหน?</p>
+                <div class="rating-stars" id="rating-stars">
+                    <i class="fas fa-star rating-star" data-rating="1"></i>
+                    <i class="fas fa-star rating-star" data-rating="2"></i>
+                    <i class="fas fa-star rating-star" data-rating="3"></i>
+                    <i class="fas fa-star rating-star" data-rating="4"></i>
+                    <i class="fas fa-star rating-star" data-rating="5"></i>
+                </div>
+                <div id="rating-text" class="rating-text"></div>
+            </div>
+            
+            <form id="rating-form" class="rating-form">
+                <input type="hidden" id="rating-question-id">
+                <input type="hidden" id="rating-value">
+                
+                <div class="form-group">
+                    <label for="rating-comment" class="form-label">ความคิดเห็นเพิ่มเติม (ไม่บังคับ)</label>
+                    <textarea id="rating-comment" rows="3" class="form-textarea" placeholder="แบ่งปันความคิดเห็นของคุณ..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn close-rating-modal">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-star"></i> ส่งคะแนน
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
