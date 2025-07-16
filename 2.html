@@ -4,1266 +4,1455 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ระบบนิเทศการสอน</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts - Kanit -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- LINE LIFF SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/versions/2.22.3/liff.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+            font-family: 'Kanit', sans-serif;
         }
-
-        body {
-            font-family: 'Sarabun', 'Kanit', sans-serif;
+        
+        .gradient-bg {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+        
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-
-        .header {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .nav-tabs {
-            display: flex;
-            background: #f8fafc;
-            border-bottom: 2px solid #e2e8f0;
-        }
-
-        .nav-tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
+        
+        .upload-area {
             transition: all 0.3s ease;
-            font-weight: 600;
-            border: none;
-            background: transparent;
         }
-
-        .nav-tab:hover {
-            background: #e2e8f0;
+        
+        .upload-area:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.15);
         }
-
-        .nav-tab.active {
-            background: #4f46e5;
-            color: white;
+        
+        .file-preview {
+            animation: slideIn 0.3s ease-out;
         }
-
-        .tab-content {
-            padding: 30px;
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-
-        .tab-pane {
-            display: none;
-        }
-
-        .tab-pane.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            outline: none;
-            border-color: #4f46e5;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .evaluation-section {
-            background: #f8fafc;
-            padding: 25px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .evaluation-section h3 {
-            color: #4f46e5;
-            margin-bottom: 20px;
-            font-size: 1.4rem;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #4f46e5;
-        }
-
-        .evaluation-item {
+        
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
-            padding: 15px;
-            background: white;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
+            gap: 8px;
         }
-
-        .evaluation-item .description {
-            flex: 1;
-            margin-right: 15px;
-            font-size: 0.95rem;
-        }
-
-        .rating-group {
-            display: flex;
-            gap: 10px;
-            margin-right: 15px;
-        }
-
-        .rating-group input[type="radio"] {
-            margin: 0;
-            width: auto;
-        }
-
-        .rating-group label {
-            margin: 0;
-            font-weight: normal;
-            cursor: pointer;
-        }
-
-        .comment-input {
-            width: 200px;
-            padding: 8px;
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: #4f46e5;
+        
+        .status-online {
+            background: #10b981;
             color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            border: none;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
+        }
+        
+        .status-offline {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .status-connecting {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             transition: all 0.3s ease;
         }
-
-        .btn:hover {
-            background: #3730a3;
+        
+        .btn-primary:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(102, 126, 234, 0.4);
         }
-
-        .btn-secondary {
-            background: #6b7280;
-        }
-
-        .btn-secondary:hover {
-            background: #4b5563;
-        }
-
-        .btn-success {
-            background: #10b981;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-        }
-
-        .file-upload {
-            position: relative;
+        
+        .category-tag {
             display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            margin: 2px;
         }
-
-        .file-upload input[type="file"] {
-            position: absolute;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        .file-upload .btn {
-            margin: 0;
-        }
-
-        .records-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .records-table th,
-        .records-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .records-table th {
-            background: #f8fafc;
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .records-table tr:hover {
-            background: #f8fafc;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #6b7280;
-        }
-
-        .loading::after {
-            content: "";
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #e2e8f0;
+        
+        .floating-action {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            border-top-color: #4f46e5;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-
-        .alert-success {
-            background: #ecfdf5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-
-        .alert-error {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        .signature-area {
-            border: 2px dashed #e2e8f0;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
             cursor: pointer;
-            transition: border-color 0.3s ease;
-            background: #f8fafc;
+            box-shadow: 0 8px 20px -5px rgba(102, 126, 234, 0.5);
+            transition: all 0.3s ease;
+            z-index: 1000;
         }
-
-        .signature-area:hover {
-            border-color: #4f46e5;
+        
+        .floating-action:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 30px -5px rgba(102, 126, 234, 0.7);
         }
-
-        .signature-area.has-signature {
-            border-color: #10b981;
-            background: #ecfdf5;
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
         }
-
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .nav-tabs {
-                flex-direction: column;
-            }
-            
-            .evaluation-item {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .rating-group {
-                margin: 10px 0;
-            }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>ระบบนิเทศการสอน</h1>
-            <p>แบบบันทึกการนิเทศการจัดการเรียนรู้และการจัดการชั้นเรียน</p>
-        </div>
-
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showTab('form')">บันทึกการนิเทศ</button>
-            <button class="nav-tab" onclick="showTab('records')">ประวัติการนิเทศ</button>
-            <button class="nav-tab" onclick="showTab('reports')">รายงาน</button>
-        </div>
-
-        <div class="tab-content">
-            <!-- Form Tab -->
-            <div id="form-tab" class="tab-pane active">
-                <form id="supervisionForm">
-                    <!-- Basic Information -->
-                    <div class="evaluation-section">
-                        <h3>ข้อมูลพื้นฐาน</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="visitNo">การนิเทศครั้งที่</label>
-                                <input type="number" id="visitNo" name="visitNo" min="1" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="date">วันที่</label>
-                                <input type="date" id="date" name="date" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="supervisorList">ผู้นิเทศ (ชื่อ-ตำแหน่ง)</label>
-                                <textarea id="supervisorList" name="supervisorList" rows="3" placeholder="ระบุชื่อและตำแหน่งของผู้นิเทศทุกคน" required></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label for="superviseeName">ผู้รับการนิเทศ (ชื่อ-ตำแหน่ง)</label>
-                                <input type="text" id="superviseeName" name="superviseeName" required>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="level">สอนระดับชั้น</label>
-                                <input type="text" id="level" name="level" placeholder="เช่น ม.1, ป.3" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="subject">วิชา/กิจกรรม</label>
-                                <input type="text" id="subject" name="subject" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="studentCount">จำนวนนักเรียน</label>
-                                <input type="number" id="studentCount" name="studentCount" min="1" required>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="researchTopic">สอดคล้องกับการทำวิจัยในชั้นเรียนเรื่อง</label>
-                            <input type="text" id="researchTopic" name="researchTopic" placeholder="ระบุหัวข้อวิจัย (ถ้ามี)">
-                        </div>
-                    </div>
-
-                    <!-- Evaluation Sections -->
-                    <div id="evaluationSections">
-                        <!-- Categories will be loaded here -->
-                    </div>
-
-                    <!-- Additional Comments -->
-                    <div class="evaluation-section">
-                        <h3>ข้อเสนอแนะเพิ่มเติมจากคณะนิเทศ</h3>
-                        <div class="form-group">
-                            <textarea id="suggestion" name="suggestion" rows="4" placeholder="ข้อเสนอแนะ คำแนะนำ หรือข้อควรปรับปรุง"></textarea>
-                        </div>
-                    </div>
-
-                    <!-- Signatures -->
-                    <div class="evaluation-section">
-                        <h3>ลายเซ็น</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>ลายเซ็นผู้นิเทศ</label>
-                                <div class="signature-area" id="supervisorSignature" onclick="handleSignature('supervisor')">
-                                    <p>คลิกเพื่ออัปโหลดลายเซ็นหรือรูปภาพ</p>
-                                    <input type="file" id="supervisorSignFile" accept="image/*,.pdf" style="display: none;" onchange="handleFileUpload('supervisor', this)">
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>ลายเซ็นผู้รับการนิเทศ</label>
-                                <div class="signature-area" id="superviseeSignature" onclick="handleSignature('supervisee')">
-                                    <p>คลิกเพื่ออัปโหลดลายเซ็นหรือรูปภาพ</p>
-                                    <input type="file" id="superviseeSignFile" accept="image/*,.pdf" style="display: none;" onchange="handleFileUpload('supervisee', this)">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div style="text-align: center; margin-top: 30px;">
-                        <button type="submit" class="btn btn-success" id="submitBtn">
-                            บันทึกข้อมูลการนิเทศ
-                        </button>
-                        <button type="button" class="btn btn-secondary" onclick="resetForm()" style="margin-left: 15px;">
-                            เคลียร์ฟอร์ม
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Records Tab -->
-            <div id="records-tab" class="tab-pane">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2>ประวัติการนิเทศ</h2>
-                    <button class="btn" onclick="loadSupervisionRecords()">รีเฟรช</button>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Connection Status -->
+    <div id="connectionStatus" class="connection-status status-connecting">
+        <i class="fas fa-wifi"></i>
+        <span>กำลังเชื่อมต่อ...</span>
+    </div>
+    
+    <!-- Header -->
+    <header class="gradient-bg text-white py-6">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold">ระบบนิเทศการสอน</h1>
+                    <p class="text-blue-100 mt-2">จัดการเอกสารและสื่อการสอนอย่างมีประสิทธิภาพ</p>
                 </div>
-                <div id="recordsContainer">
-                    <div class="loading">กำลังโหลดข้อมูล...</div>
+                <div class="flex items-center gap-4">
+                    <button id="liffConnectBtn" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition-colors">
+                        <i class="fab fa-line mr-2"></i>
+                        เชื่อมต่อ LINE
+                    </button>
+                    <button id="settingsBtn" class="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-colors">
+                        <i class="fas fa-cog"></i>
+                    </button>
                 </div>
             </div>
-
-            <!-- Reports Tab -->
-            <div id="reports-tab" class="tab-pane">
-                <h2>รายงานและสถิติ</h2>
-                <div class="form-row" style="margin-top: 20px;">
-                    <div class="form-group">
-                        <label for="reportType">ประเภทรายงาน</label>
-                        <select id="reportType">
-                            <option value="summary">สรุปผลการนิเทศ</option>
-                            <option value="teacher">รายงานตามครู</option>
-                            <option value="subject">รายงานตามวิชา</option>
-                            <option value="period">รายงานตามช่วงเวลา</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="dateFrom">จากวันที่</label>
-                        <input type="date" id="dateFrom">
-                    </div>
-                    <div class="form-group">
-                        <label for="dateTo">ถึงวันที่</label>
-                        <input type="date" id="dateTo">
-                    </div>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Upload Section -->
+        <div class="bg-white rounded-xl card-shadow p-6 mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+                <i class="fas fa-cloud-upload-alt mr-3 text-blue-600"></i>
+                อัปโหลดไฟล์
+            </h2>
+            
+            <div id="uploadArea" class="upload-area border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50/50">
+                <i class="fas fa-file-upload text-4xl text-gray-400 mb-4"></i>
+                <p class="text-lg text-gray-600 mb-2">ลากไฟล์มาวางที่นี่ หรือคลิกเพื่อเลือกไฟล์</p>
+                <p class="text-sm text-gray-500">รองรับ: PDF, Word, รูปภาพ (สูงสุด 50MB)</p>
+                <input type="file" id="fileInput" class="hidden" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
+            </div>
+            
+            <!-- File Preview Area -->
+            <div id="filePreview" class="mt-6 hidden">
+                <h3 class="text-lg font-semibold mb-4">ไฟล์ที่เลือก</h3>
+                <div id="fileList" class="space-y-3"></div>
+                
+                <div class="mt-6 flex gap-4">
+                    <button id="uploadBtn" class="btn-primary text-white px-6 py-3 rounded-lg flex items-center gap-2 disabled:opacity-50">
+                        <i class="fas fa-upload"></i>
+                        อัปโหลดไฟล์
+                    </button>
+                    <button id="clearBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg flex items-center gap-2">
+                        <i class="fas fa-trash"></i>
+                        ล้างทั้งหมด
+                    </button>
                 </div>
-                <div style="margin-top: 20px;">
-                    <button class="btn" onclick="generateReport()">สร้างรายงาน</button>
-                    <button class="btn btn-secondary" onclick="exportToExcel()">ส่งออก Excel</button>
+            </div>
+        </div>
+        
+        <!-- Files Grid -->
+        <div class="bg-white rounded-xl card-shadow p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800">
+                    <i class="fas fa-folder-open mr-3 text-blue-600"></i>
+                    ไฟล์ทั้งหมด
+                </h2>
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <input type="text" id="searchInput" placeholder="ค้นหาไฟล์..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                    </div>
+                    <select id="categoryFilter" class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">ทุกหมวดหมู่</option>
+                    </select>
                 </div>
-                <div id="reportContainer" style="margin-top: 30px;">
-                    <!-- Report content will be displayed here -->
+            </div>
+            
+            <div id="filesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Files will be loaded here -->
+            </div>
+            
+            <div id="loadingFiles" class="text-center py-8">
+                <i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
+                <p class="text-gray-500 mt-2">กำลังโหลดไฟล์...</p>
+            </div>
+            
+            <div id="noFiles" class="text-center py-8 hidden">
+                <i class="fas fa-folder-open text-4xl text-gray-400 mb-4"></i>
+                <p class="text-gray-500">ยังไม่มีไฟล์ในระบบ</p>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Floating Action Button -->
+    <button id="floatingBtn" class="floating-action">
+        <i class="fas fa-plus"></i>
+    </button>
+    
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold">อัปโหลดไฟล์</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="uploadProgress" class="hidden mb-6">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm text-gray-600">กำลังอัปโหลด...</span>
+                    <span id="progressText" class="text-sm text-gray-600">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">หมวดหมู่</label>
+                    <select id="categorySelect" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">เลือกหมวดหมู่...</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">คำอธิบาย</label>
+                    <textarea id="descriptionInput" rows="3" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="เพิ่มคำอธิบายไฟล์..."></textarea>
+                </div>
+                
+                <div class="flex gap-4">
+                    <button id="confirmUpload" class="btn-primary text-white px-6 py-2 rounded-lg flex-1">
+                        <i class="fas fa-upload mr-2"></i>
+                        อัปโหลด
+                    </button>
+                    <button id="cancelUpload" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg flex-1">
+                        <i class="fas fa-times mr-2"></i>
+                        ยกเลิก
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Alert Container -->
-    <div id="alertContainer" style="position: fixed; top: 20px; right: 20px; z-index: 1000; max-width: 400px;"></div>
+    
+    <!-- File Detail Modal -->
+    <div id="fileDetailModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold">รายละเอียดไฟล์</h3>
+                <button id="closeDetailModal" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="fileDetailContent">
+                <!-- File details will be loaded here -->
+            </div>
+        </div>
+    </div>
 
     <script>
-        // Configuration
+        // ==================== CONFIGURATION ====================
         const CONFIG = {
-            GAS_URL: 'https://script.google.com/macros/s/AKfycbzzEoP7SVNhoptSxIZrBpZifAJpM8F1EmLk93YNdS_JX24nOl_kqPBHE7tomhJWB1J4UA/exec', // Replace with your GAS Web App URL
-            LINE_LIFF_ID: '2006490627-lnx8yPYJ'
+            SCRIPT_URL: 'YOUR_SCRIPT_URL_HERE', // Replace with your Apps Script Web App URL
+            LIFF_ID: 'YOUR_LIFF_ID_HERE', // Replace with your LIFF ID
+            MAX_FILE_SIZE: 50 * 1024 * 1024, // 50MB
+            ALLOWED_TYPES: ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+            TIMEOUT: 30000, // 30 seconds
+            RETRY_COUNT: 3
         };
 
-        // Global variables
-        let masterItems = [];
-        let currentSupervisionData = {};
+        // ==================== API CLIENT CLASS ====================
+        class ApiClient {
+            constructor(baseUrl) {
+                this.baseUrl = baseUrl;
+                this.timeout = CONFIG.TIMEOUT;
+                this.retryCount = CONFIG.RETRY_COUNT;
+                this.connectionStatus = 'connecting';
+                this.updateConnectionStatus();
+            }
 
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
-            loadMasterItems();
-            setDefaultDate();
-            initializeLIFF();
-        });
+            async request(action, params = {}, useJsonp = true) {
+                const url = new URL(this.baseUrl);
+                url.searchParams.append('action', action);
+                
+                Object.keys(params).forEach(key => {
+                    url.searchParams.append(key, params[key]);
+                });
 
-        // LIFF Integration
-        function initializeLIFF() {
-            if (typeof liff !== 'undefined') {
-                liff.init({
-                    liffId: CONFIG.LINE_LIFF_ID
-                }).then(() => {
-                    console.log('LIFF initialized successfully');
-                    if (liff.isLoggedIn()) {
-                        liff.getProfile().then(profile => {
-                            console.log('User profile:', profile);
-                            document.getElementById('superviseeName').value = profile.displayName;
+                let attempt = 0;
+                while (attempt < this.retryCount) {
+                    try {
+                        if (useJsonp) {
+                            const response = await this.jsonpRequest(url.toString());
+                            this.setConnectionStatus('online');
+                            return response;
+                        } else {
+                            const response = await this.jsonRequest(url.toString());
+                            this.setConnectionStatus('online');
+                            return response;
+                        }
+                    } catch (error) {
+                        attempt++;
+                        console.warn(`Request attempt ${attempt} failed:`, error);
+                        
+                        if (attempt < this.retryCount) {
+                            await this.delay(1000 * attempt);
+                        }
+                        
+                        // Try fallback to JSON if JSONP fails
+                        if (useJsonp && attempt === this.retryCount) {
+                            console.log('JSONP failed, trying JSON fallback...');
+                            return this.request(action, params, false);
+                        }
+                    }
+                }
+                
+                this.setConnectionStatus('offline');
+                throw new Error('Request failed after all retries');
+            }
+
+            jsonpRequest(url) {
+                return new Promise((resolve, reject) => {
+                    const callback = 'callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                    const script = document.createElement('script');
+                    const timeout = setTimeout(() => {
+                        cleanup();
+                        reject(new Error('JSONP request timeout'));
+                    }, this.timeout);
+
+                    const cleanup = () => {
+                        clearTimeout(timeout);
+                        document.head.removeChild(script);
+                        delete window[callback];
+                    };
+
+                    window[callback] = (data) => {
+                        cleanup();
+                        resolve(data);
+                    };
+
+                    script.src = url + '&callback=' + callback;
+                    script.onerror = () => {
+                        cleanup();
+                        reject(new Error('JSONP script load error'));
+                    };
+
+                    document.head.appendChild(script);
+                });
+            }
+
+            async jsonRequest(url) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+
+                try {
+                    const response = await fetch(url, {
+                        signal: controller.signal,
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                        }
+                    });
+
+                    clearTimeout(timeoutId);
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    return await response.json();
+                } catch (error) {
+                    clearTimeout(timeoutId);
+                    throw error;
+                }
+            }
+
+            setConnectionStatus(status) {
+                this.connectionStatus = status;
+                this.updateConnectionStatus();
+            }
+
+            updateConnectionStatus() {
+                const statusElement = document.getElementById('connectionStatus');
+                const statusText = statusElement.querySelector('span');
+                const statusIcon = statusElement.querySelector('i');
+
+                statusElement.className = 'connection-status';
+                
+                switch (this.connectionStatus) {
+                    case 'online':
+                        statusElement.classList.add('status-online');
+                        statusText.textContent = 'เชื่อมต่อแล้ว';
+                        statusIcon.className = 'fas fa-wifi';
+                        break;
+                    case 'offline':
+                        statusElement.classList.add('status-offline');
+                        statusText.textContent = 'ขาดการเชื่อมต่อ';
+                        statusIcon.className = 'fas fa-wifi-slash';
+                        break;
+                    case 'connecting':
+                        statusElement.classList.add('status-connecting', 'pulse');
+                        statusText.textContent = 'กำลังเชื่อมต่อ...';
+                        statusIcon.className = 'fas fa-sync fa-spin';
+                        break;
+                }
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            async ping() {
+                return this.request('ping');
+            }
+
+            async uploadFile(fileData) {
+                return this.request('upload', fileData);
+            }
+
+            async getFiles() {
+                return this.request('getFiles');
+            }
+
+            async getCategories() {
+                return this.request('getCategories');
+            }
+
+            async incrementShare(fileId) {
+                return this.request('incrementShare', { fileId });
+            }
+        }
+
+        // ==================== FILE UPLOAD MANAGER ====================
+        class FileUploadManager {
+            constructor(apiClient) {
+                this.apiClient = apiClient;
+                this.selectedFiles = [];
+                this.categories = [];
+                this.initializeEventListeners();
+                this.loadCategories();
+            }
+
+            initializeEventListeners() {
+                const fileInput = document.getElementById('fileInput');
+                const uploadArea = document.getElementById('uploadArea');
+                const uploadBtn = document.getElementById('uploadBtn');
+                const clearBtn = document.getElementById('clearBtn');
+                const floatingBtn = document.getElementById('floatingBtn');
+
+                // File input change
+                fileInput.addEventListener('change', (e) => {
+                    this.handleFileSelect(e.target.files);
+                });
+
+                // Drag and drop
+                uploadArea.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.add('border-blue-500', 'bg-blue-50');
+                });
+
+                uploadArea.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('border-blue-500', 'bg-blue-50');
+                });
+
+                uploadArea.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadArea.classList.remove('border-blue-500', 'bg-blue-50');
+                    this.handleFileSelect(e.dataTransfer.files);
+                });
+
+                // Click to select files
+                uploadArea.addEventListener('click', () => {
+                    fileInput.click();
+                });
+
+                // Upload button
+                uploadBtn.addEventListener('click', () => {
+                    this.uploadFiles();
+                });
+
+                // Clear button
+                clearBtn.addEventListener('click', () => {
+                    this.clearFiles();
+                });
+
+                // Floating action button
+                floatingBtn.addEventListener('click', () => {
+                    fileInput.click();
+                });
+            }
+
+            async loadCategories() {
+                try {
+                    const response = await this.apiClient.getCategories();
+                    if (response.success) {
+                        this.categories = response.data;
+                        this.populateCategorySelects();
+                    }
+                } catch (error) {
+                    console.error('Error loading categories:', error);
+                }
+            }
+
+            populateCategorySelects() {
+                const categoryFilter = document.getElementById('categoryFilter');
+                const categorySelect = document.getElementById('categorySelect');
+
+                [categoryFilter, categorySelect].forEach(select => {
+                    if (select) {
+                        // Clear existing options (except first one)
+                        while (select.children.length > 1) {
+                            select.removeChild(select.lastChild);
+                        }
+
+                        // Add category options
+                        this.categories.forEach(category => {
+                            const option = document.createElement('option');
+                            option.value = category.Name;
+                            option.textContent = category.Name;
+                            select.appendChild(option);
                         });
                     }
-                }).catch((err) => {
-                    console.log('LIFF initialization failed', err);
                 });
             }
-        }
 
-        // Tab switching
-        function showTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-pane').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Remove active class from all nav tabs
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected tab
-            document.getElementById(tabName + '-tab').classList.add('active');
-            
-            // Add active class to clicked nav tab
-            event.target.classList.add('active');
-            
-            // Load data if needed
-            if (tabName === 'records') {
-                loadSupervisionRecords();
-            }
-        }
+            handleFileSelect(files) {
+                const fileArray = Array.from(files);
+                const validFiles = [];
 
-        // Load master evaluation items
-        async function loadMasterItems() {
-            try {
-                showLoading('กำลังโหลดรายการประเมิน...');
-                
-                const response = await fetch(`${CONFIG.GAS_URL}?action=getMasterItems`);
-                const result = await response.json();
-                
-                if (result.success) {
-                    masterItems = result.data;
-                    renderEvaluationSections();
-                } else {
-                    showAlert('เกิดข้อผิดพลาดในการโหลดรายการประเมิน: ' + result.error, 'error');
-                }
-            } catch (error) {
-                console.error('Error loading master items:', error);
-                showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // Render evaluation sections
-        function renderEvaluationSections() {
-            const container = document.getElementById('evaluationSections');
-            const categories = {
-                'ก': 'ด้านการเตรียมความพร้อมของครู',
-                'ข': 'ด้านทักษะ/กระบวนการจัดการเรียนรู้ของครู',
-                'ค': 'ด้านผู้เรียน',
-                'ง': 'บรรยากาศในชั้นเรียน'
-            };
-
-            container.innerHTML = '';
-
-            Object.keys(categories).forEach(categoryKey => {
-                const categoryItems = masterItems.filter(item => item.Category === categoryKey);
-                
-                if (categoryItems.length > 0) {
-                    const section = document.createElement('div');
-                    section.className = 'evaluation-section';
-                    section.innerHTML = `
-                        <h3>${categoryKey}. ${categories[categoryKey]}</h3>
-                        ${categoryItems.map(item => `
-                            <div class="evaluation-item">
-                                <div class="description">
-                                    ${item.ItemNo}. ${item.Description}
-                                </div>
-                                <div class="rating-group">
-                                    ${[5, 4, 3, 2, 1].map(score => `
-                                        <label>
-                                            <input type="radio" name="score_${categoryKey}_${item.ItemNo}" value="${score}" required>
-                                            ${score}
-                                        </label>
-                                    `).join('')}
-                                </div>
-                                <input type="text" class="comment-input" placeholder="ความคิดเห็น" 
-                                       id="comment_${categoryKey}_${item.ItemNo}">
-                            </div>
-                        `).join('')}
-                    `;
-                    container.appendChild(section);
-                }
-            });
-        }
-
-        // Set default date to today
-        function setDefaultDate() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('date').value = today;
-        }
-
-        // Handle signature upload
-        function handleSignature(type) {
-            document.getElementById(type + 'SignFile').click();
-        }
-
-        // Handle file upload
-        async function handleFileUpload(type, fileInput) {
-            const file = fileInput.files[0];
-            if (!file) return;
-
-            const signatureArea = document.getElementById(type + 'Signature');
-            signatureArea.innerHTML = '<div class="loading">กำลังอัปโหลด...</div>';
-
-            try {
-                const base64 = await fileToBase64(file);
-                
-                const uploadData = {
-                    action: 'uploadFile',
-                    fileData: base64.split(',')[1],
-                    fileName: `${type}_signature_${Date.now()}.${file.name.split('.').pop()}`,
-                    mimeType: file.type
-                };
-
-                const response = await fetch(CONFIG.GAS_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(uploadData)
+                fileArray.forEach(file => {
+                    if (this.validateFile(file)) {
+                        validFiles.push(file);
+                    }
                 });
 
-                const result = await response.json();
-
-                if (result.success) {
-                    signatureArea.innerHTML = `
-                        <p style="color: #10b981; font-weight: 600;">✓ ลายเซ็นอัปโหลดสำเร็จ</p>
-                        <small>${result.fileName}</small>
-                    `;
-                    signatureArea.classList.add('has-signature');
-                    
-                    // Store file URL for form submission
-                    currentSupervisionData[type + 'Sign'] = result.fileUrl;
-                } else {
-                    throw new Error(result.error);
+                if (validFiles.length > 0) {
+                    this.selectedFiles = [...this.selectedFiles, ...validFiles];
+                    this.updateFilePreview();
+                    this.showFilePreview();
                 }
-            } catch (error) {
-                console.error('Error uploading file:', error);
-                signatureArea.innerHTML = '<p style="color: #ef4444;">เกิดข้อผิดพลาดในการอัปโหลด</p>';
-                showAlert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ' + error.message, 'error');
             }
-        }
 
-        // Convert file to base64
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            });
-        }
+            validateFile(file) {
+                // Check file size
+                if (file.size > CONFIG.MAX_FILE_SIZE) {
+                    Swal.fire({
+                        title: 'ไฟล์ใหญ่เกินไป',
+                        text: `ไฟล์ ${file.name} มีขนาด ${(file.size / 1024 / 1024).toFixed(2)} MB เกินขนาดที่อนุญาต (50 MB)`,
+                        icon: 'warning',
+                        confirmButtonText: 'ตกลง'
+                    });
+                    return false;
+                }
 
-        // Form submission
-        document.getElementById('supervisionForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            const originalText = submitBtn.textContent;
-            submitBtn.textContent = 'กำลังบันทึก...';
-            submitBtn.disabled = true;
+                // Check file type
+                if (!CONFIG.ALLOWED_TYPES.includes(file.type)) {
+                    Swal.fire({
+                        title: 'ประเภทไฟล์ไม่รองรับ',
+                        text: `ไฟล์ ${file.name} เป็นประเภทที่ไม่รองรับ`,
+                        icon: 'warning',
+                        confirmButtonText: 'ตกลง'
+                    });
+                    return false;
+                }
 
-            try {
-                const formData = new FormData(this);
-                const data = Object.fromEntries(formData.entries());
-                
-                // Collect evaluation scores and comments
-                const evaluations = [];
-                masterItems.forEach(item => {
-                    const scoreElement = document.querySelector(`input[name="score_${item.Category}_${item.ItemNo}"]:checked`);
-                    const commentElement = document.getElementById(`comment_${item.Category}_${item.ItemNo}`);
+                return true;
+            }
+
+            showFilePreview() {
+                const filePreview = document.getElementById('filePreview');
+                filePreview.classList.remove('hidden');
+            }
+
+            updateFilePreview() {
+                const fileList = document.getElementById('fileList');
+                fileList.innerHTML = '';
+
+                this.selectedFiles.forEach((file, index) => {
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-preview bg-gray-50 p-4 rounded-lg flex items-center justify-between';
                     
-                    if (scoreElement) {
-                        evaluations.push({
-                            category: item.Category,
-                            itemNo: item.ItemNo,
-                            description: item.Description,
-                            score: parseInt(scoreElement.value),
-                            comment: commentElement.value || ''
+                    const fileInfo = document.createElement('div');
+                    fileInfo.className = 'flex items-center gap-3';
+                    
+                    const fileIcon = this.getFileIcon(file.type);
+                    const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                    
+                    fileInfo.innerHTML = `
+                        <i class="${fileIcon} text-2xl text-blue-600"></i>
+                        <div>
+                            <div class="font-medium text-gray-800">${file.name}</div>
+                            <div class="text-sm text-gray-500">${fileSize} MB • ${this.categorizeFile(file.name, file.type)}</div>
+                        </div>
+                    `;
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.className = 'text-red-500 hover:text-red-700 p-2';
+                    removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    removeBtn.addEventListener('click', () => {
+                        this.removeFile(index);
+                    });
+                    
+                    fileItem.appendChild(fileInfo);
+                    fileItem.appendChild(removeBtn);
+                    fileList.appendChild(fileItem);
+                });
+            }
+
+            getFileIcon(mimeType) {
+                if (mimeType.startsWith('image/')) return 'fas fa-image';
+                if (mimeType === 'application/pdf') return 'fas fa-file-pdf';
+                if (mimeType.includes('word')) return 'fas fa-file-word';
+                return 'fas fa-file';
+            }
+
+            categorizeFile(fileName, mimeType) {
+                const name = fileName.toLowerCase();
+                
+                if (mimeType.startsWith('image/')) return 'รูปภาพ';
+                if (mimeType === 'application/pdf') return 'เอกสาร PDF';
+                if (mimeType.includes('word')) return 'เอกสาร Word';
+                if (name.includes('แผน') || name.includes('plan')) return 'แผนการสอน';
+                if (name.includes('สื่อ') || name.includes('media')) return 'สื่อการสอน';
+                if (name.includes('ประเมิน') || name.includes('assess')) return 'การประเมิน';
+                
+                return 'ทั่วไป';
+            }
+
+            removeFile(index) {
+                this.selectedFiles.splice(index, 1);
+                this.updateFilePreview();
+                
+                if (this.selectedFiles.length === 0) {
+                    document.getElementById('filePreview').classList.add('hidden');
+                }
+            }
+
+            clearFiles() {
+                this.selectedFiles = [];
+                document.getElementById('filePreview').classList.add('hidden');
+                document.getElementById('fileInput').value = '';
+            }
+
+            async uploadFiles() {
+                if (this.selectedFiles.length === 0) {
+                    Swal.fire({
+                        title: 'ไม่มีไฟล์ที่เลือก',
+                        text: 'กรุณาเลือกไฟล์ที่ต้องการอัปโหลด',
+                        icon: 'warning',
+                        confirmButtonText: 'ตกลง'
+                    });
+                    return;
+                }
+
+                const uploadBtn = document.getElementById('uploadBtn');
+                const originalText = uploadBtn.innerHTML;
+                uploadBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>กำลังอัปโหลด...';
+                uploadBtn.disabled = true;
+
+                try {
+                    const results = [];
+                    
+                    for (let i = 0; i < this.selectedFiles.length; i++) {
+                        const file = this.selectedFiles[i];
+                        const fileData = await this.fileToBase64(file);
+                        
+                        const uploadData = {
+                            fileName: file.name,
+                            fileSize: file.size,
+                            mimeType: file.type,
+                            fileData: fileData.split(',')[1] // Remove data:... prefix
+                        };
+                        
+                        const result = await this.apiClient.uploadFile(uploadData);
+                        results.push(result);
+                    }
+                    
+                    const successCount = results.filter(r => r.success).length;
+                    const failCount = results.length - successCount;
+                    
+                    if (successCount > 0) {
+                        Swal.fire({
+                            title: 'อัปโหลดเสร็จสิ้น',
+                            text: `อัปโหลดสำเร็จ ${successCount} ไฟล์${failCount > 0 ? ` (ล้มเหลว ${failCount} ไฟล์)` : ''}`,
+                            icon: successCount === results.length ? 'success' : 'warning',
+                            confirmButtonText: 'ตกลง'
+                        });
+                        
+                        this.clearFiles();
+                        fileManager.loadFiles(); // Refresh file list
+                    } else {
+                        Swal.fire({
+                            title: 'อัปโหลดล้มเหลว',
+                            text: 'ไม่สามารถอัปโหลดไฟล์ได้',
+                            icon: 'error',
+                            confirmButtonText: 'ตกลง'
                         });
                     }
-                });
-
-                // Add signatures if uploaded
-                if (currentSupervisionData.supervisorSign) {
-                    data.supervisorSign = currentSupervisionData.supervisorSign;
-                }
-                if (currentSupervisionData.superviseeSign) {
-                    data.superviseeSign = currentSupervisionData.superviseeSign;
-                }
-
-                const submissionData = {
-                    action: 'saveSupervision',
-                    data: {
-                        ...data,
-                        evaluations: evaluations
-                    }
-                };
-
-                const response = await fetch(CONFIG.GAS_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(submissionData)
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    showAlert(`บันทึกข้อมูลสำเร็จ! รหัสการนิเทศ: ${result.supervisionID}`, 'success');
                     
-                    // Send LINE notification if LIFF is available
-                    if (typeof liff !== 'undefined' && liff.isLoggedIn()) {
-                        sendLineNotification(`บันทึกการนิเทศสำเร็จ\nรหัส: ${result.supervisionID}\nครู: ${data.superviseeName}\nวิชา: ${data.subject}`);
-                    }
-                    
-                    // Reset form
-                    resetForm();
-                } else {
-                    throw new Error(result.error);
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถอัปโหลดไฟล์ได้ กรุณาลองใหม่อีกครั้ง',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
+                } finally {
+                    uploadBtn.innerHTML = originalText;
+                    uploadBtn.disabled = false;
                 }
-            } catch (error) {
-                console.error('Error saving supervision:', error);
-                showAlert('เกิดข้อผิดพลาดในการบันทึกข้อมูล: ' + error.message, 'error');
-            } finally {
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
             }
-        });
 
-        // Send LINE notification
-        function sendLineNotification(message) {
-            if (typeof liff !== 'undefined' && liff.isLoggedIn()) {
-                liff.sendMessages([{
-                    type: 'text',
-                    text: message
-                }]).then(() => {
-                    console.log('LINE message sent successfully');
-                }).catch((err) => {
-                    console.log('Error sending LINE message', err);
+            fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => resolve(reader.result);
+                    reader.onerror = error => reject(error);
                 });
             }
         }
 
-        // Reset form
-        function resetForm() {
-            document.getElementById('supervisionForm').reset();
-            setDefaultDate();
-            
-            // Reset signatures
-            document.getElementById('supervisorSignature').innerHTML = '<p>คลิกเพื่ออัปโหลดลายเซ็นหรือรูปภาพ</p>';
-            document.getElementById('superviseeSignature').innerHTML = '<p>คลิกเพื่ออัปโหลดลายเซ็นหรือรูปภาพ</p>';
-            document.getElementById('supervisorSignature').classList.remove('has-signature');
-            document.getElementById('superviseeSignature').classList.remove('has-signature');
-            
-            currentSupervisionData = {};
-        }
+        // ==================== FILE MANAGER ====================
+        class FileManager {
+            constructor(apiClient) {
+                this.apiClient = apiClient;
+                this.files = [];
+                this.filteredFiles = [];
+                this.initializeEventListeners();
+                this.loadFiles();
+            }
 
-        // Load supervision records
-        async function loadSupervisionRecords() {
-            const container = document.getElementById('recordsContainer');
-            container.innerHTML = '<div class="loading">กำลังโหลดข้อมูล...</div>';
+            initializeEventListeners() {
+                const searchInput = document.getElementById('searchInput');
+                const categoryFilter = document.getElementById('categoryFilter');
 
-            try {
-                const response = await fetch(`${CONFIG.GAS_URL}?action=getAllSupervisions`);
-                const result = await response.json();
+                searchInput.addEventListener('input', (e) => {
+                    this.filterFiles();
+                });
 
-                if (result.success) {
-                    renderSupervisionRecords(result.data);
-                } else {
-                    throw new Error(result.error);
+                categoryFilter.addEventListener('change', (e) => {
+                    this.filterFiles();
+                });
+            }
+
+            async loadFiles() {
+                const loadingElement = document.getElementById('loadingFiles');
+                const noFilesElement = document.getElementById('noFiles');
+                const filesGrid = document.getElementById('filesGrid');
+
+                loadingElement.classList.remove('hidden');
+                noFilesElement.classList.add('hidden');
+                filesGrid.innerHTML = '';
+
+                try {
+                    const response = await this.apiClient.getFiles();
+                    if (response.success) {
+                        this.files = response.data;
+                        this.filteredFiles = [...this.files];
+                        this.renderFiles();
+                    } else {
+                        throw new Error(response.error);
+                    }
+                } catch (error) {
+                    console.error('Error loading files:', error);
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถโหลดรายการไฟล์ได้',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
+                } finally {
+                    loadingElement.classList.add('hidden');
                 }
-            } catch (error) {
-                console.error('Error loading records:', error);
-                container.innerHTML = '<div class="alert alert-error">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
-            }
-        }
-
-        // Render supervision records
-        function renderSupervisionRecords(records) {
-            const container = document.getElementById('recordsContainer');
-            
-            if (records.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #6b7280;">ยังไม่มีข้อมูลการนิเทศ</div>';
-                return;
             }
 
-            const table = `
-                <table class="records-table">
-                    <thead>
-                        <tr>
-                            <th>รหัสการนิเทศ</th>
-                            <th>วันที่</th>
-                            <th>ผู้รับการนิเทศ</th>
-                            <th>วิชา</th>
-                            <th>ระดับชั้น</th>
-                            <th>การดำเนินการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${records.map(record => `
-                            <tr>
-                                <td>${record.SupervisionID}</td>
-                                <td>${formatDate(record.Date)}</td>
-                                <td>${record.SuperviseeName}</td>
-                                <td>${record.Subject}</td>
-                                <td>${record.Level}</td>
-                                <td>
-                                    <button class="btn" style="padding: 6px 12px; font-size: 14px;" 
-                                            onclick="viewSupervisionDetail('${record.SupervisionID}')">
-                                        ดูรายละเอียด
-                                    </button>
-                                    <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 14px; margin-left: 5px;" 
-                                            onclick="generateSupervisionReport('${record.SupervisionID}')">
-                                        รายงาน
-                                    </button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-            
-            container.innerHTML = table;
-        }
+            filterFiles() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const categoryFilter = document.getElementById('categoryFilter').value;
 
-        // View supervision detail
-        async function viewSupervisionDetail(supervisionID) {
-            showLoading('กำลังโหลดรายละเอียด...');
-            
-            try {
-                const response = await fetch(`${CONFIG.GAS_URL}?action=getSupervision&id=${supervisionID}`);
-                const result = await response.json();
+                this.filteredFiles = this.files.filter(file => {
+                    const matchesSearch = file.Name.toLowerCase().includes(searchTerm);
+                    const matchesCategory = !categoryFilter || file.Category === categoryFilter;
+                    return matchesSearch && matchesCategory;
+                });
 
-                if (result.success) {
-                    showSupervisionDetailModal(result.data);
-                } else {
-                    throw new Error(result.error);
+                this.renderFiles();
+            }
+
+            renderFiles() {
+                const filesGrid = document.getElementById('filesGrid');
+                const noFilesElement = document.getElementById('noFiles');
+
+                if (this.filteredFiles.length === 0) {
+                    filesGrid.innerHTML = '';
+                    noFilesElement.classList.remove('hidden');
+                    return;
                 }
-            } catch (error) {
-                console.error('Error loading supervision detail:', error);
-                showAlert('เกิดข้อผิดพลาดในการโหลดรายละเอียด: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
 
-        // Show supervision detail modal
-        function showSupervisionDetailModal(data) {
-            const modalHTML = `
-                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center;" onclick="this.remove()">
-                    <div style="background: white; border-radius: 12px; padding: 30px; max-width: 800px; max-height: 80vh; overflow-y: auto; margin: 20px;" onclick="event.stopPropagation()">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                            <h2>รายละเอียดการนิเทศ: ${data.main.SupervisionID}</h2>
-                            <button onclick="this.closest('div[style*=\"position: fixed\"]').remove()" style="background: none; border: none; font-size: 24px; cursor: pointer;">&times;</button>
+                noFilesElement.classList.add('hidden');
+                filesGrid.innerHTML = '';
+
+                this.filteredFiles.forEach(file => {
+                    const fileCard = this.createFileCard(file);
+                    filesGrid.appendChild(fileCard);
+                });
+            }
+
+            createFileCard(file) {
+                const card = document.createElement('div');
+                card.className = 'bg-white border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer';
+                
+                const fileIcon = this.getFileIcon(file.Type);
+                const fileSize = (file.Size / 1024 / 1024).toFixed(2);
+                const uploadDate = new Date(file.UploadDate).toLocaleDateString('th-TH');
+                
+                card.innerHTML = `
+                    <div class="flex items-start gap-3">
+                        <i class="${fileIcon} text-3xl text-blue-600"></i>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="font-medium text-gray-800 truncate">${file.Name}</h3>
+                            <p class="text-sm text-gray-500 mt-1">${fileSize} MB • ${uploadDate}</p>
+                            <div class="category-tag bg-blue-100 text-blue-800 mt-2">${file.Category}</div>
                         </div>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <h3>ข้อมูลพื้นฐาน</h3>
-                            <p><strong>วันที่:</strong> ${formatDate(data.main.Date)}</p>
-                            <p><strong>ผู้นิเทศ:</strong> ${data.main.SupervisorList}</p>
-                            <p><strong>ผู้รับการนิเทศ:</strong> ${data.main.SuperviseeName}</p>
-                            <p><strong>วิชา:</strong> ${data.main.Subject}</p>
-                            <p><strong>ระดับชั้น:</strong> ${data.main.Level}</p>
-                            <p><strong>จำนวนนักเรียน:</strong> ${data.main.StudentCount} คน</p>
-                            ${data.main.ResearchTopic ? `<p><strong>หัวข้อวิจัย:</strong> ${data.main.ResearchTopic}</p>` : ''}
+                    </div>
+                    <div class="flex items-center justify-between mt-4">
+                        <div class="flex items-center gap-2 text-sm text-gray-500">
+                            <i class="fas fa-share"></i>
+                            <span>${file.Shares || 0} ครั้ง</span>
                         </div>
-                        
-                        <div style="margin-bottom: 20px;">
-                            <h3>ผลการประเมิน</h3>
-                            ${data.evaluations.map(eval => `
-                                <div style="margin-bottom: 10px; padding: 10px; background: #f8fafc; border-radius: 6px;">
-                                    <strong>${eval.Category}.${eval.ItemNo}</strong> ${eval.Description}
-                                    <br><span style="color: #4f46e5; font-weight: 600;">คะแนน: ${eval.Score}/5</span>
-                                    ${eval.Comment ? `<br><em>ความคิดเห็น: ${eval.Comment}</em>` : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                        
-                        ${data.main.Suggestion ? `
-                            <div style="margin-bottom: 20px;">
-                                <h3>ข้อเสนอแนะ</h3>
-                                <p>${data.main.Suggestion}</p>
-                            </div>
-                        ` : ''}
-                        
-                        <div style="text-align: center;">
-                            <button class="btn" onclick="generateSupervisionReport('${data.main.SupervisionID}')">
-                                สร้างรายงาน PDF
+                        <div class="flex gap-2">
+                            <button class="download-btn text-blue-600 hover:text-blue-800 p-1" data-file-id="${file.ID}">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="share-btn text-green-600 hover:text-green-800 p-1" data-file-id="${file.ID}">
+                                <i class="fas fa-share"></i>
+                            </button>
+                            <button class="detail-btn text-gray-600 hover:text-gray-800 p-1" data-file-id="${file.ID}">
+                                <i class="fas fa-info-circle"></i>
                             </button>
                         </div>
                     </div>
-                </div>
-            `;
-            
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-        }
+                `;
 
-        // Generate supervision report
-        async function generateSupervisionReport(supervisionID) {
-            showLoading('กำลังสร้างรายงาน...');
-            
-            try {
-                const response = await fetch(CONFIG.GAS_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        action: 'generateReport',
-                        supervisionID: supervisionID
-                    })
+                // Add event listeners
+                card.querySelector('.download-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.downloadFile(file);
                 });
 
-                const result = await response.json();
+                card.querySelector('.share-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.shareFile(file);
+                });
 
-                if (result.success) {
-                    window.open(result.documentUrl, '_blank');
-                    showAlert('สร้างรายงานสำเร็จ!', 'success');
-                } else {
-                    throw new Error(result.error);
+                card.querySelector('.detail-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.showFileDetail(file);
+                });
+
+                return card;
+            }
+
+            getFileIcon(mimeType) {
+                if (mimeType.startsWith('image/')) return 'fas fa-image';
+                if (mimeType === 'application/pdf') return 'fas fa-file-pdf';
+                if (mimeType.includes('word')) return 'fas fa-file-word';
+                return 'fas fa-file';
+            }
+
+            downloadFile(file) {
+                window.open(file.DownloadURL, '_blank');
+            }
+
+            async shareFile(file) {
+                try {
+                    await this.apiClient.incrementShare(file.ID);
+                    
+                    if (liffManager.isLiffReady()) {
+                        const flexMessage = generateFlexMessage(file);
+                        await liffManager.shareToLine(flexMessage);
+                    } else {
+                        // Fallback to clipboard
+                        await navigator.clipboard.writeText(file.URL);
+                        Swal.fire({
+                            title: 'คัดลอกลิงก์แล้ว',
+                            text: 'ลิงก์ไฟล์ถูกคัดลอกไปยังคลิปบอร์ดแล้ว',
+                            icon: 'success',
+                            confirmButtonText: 'ตกลง'
+                        });
+                    }
+                    
+                    this.loadFiles(); // Refresh to update share count
+                } catch (error) {
+                    console.error('Share error:', error);
+                    Swal.fire({
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถแชร์ไฟล์ได้',
+                        icon: 'error',
+                        confirmButtonText: 'ตกลง'
+                    });
                 }
+            }
+
+            showFileDetail(file) {
+                const modal = document.getElementById('fileDetailModal');
+                const content = document.getElementById('fileDetailContent');
+                
+                const fileSize = (file.Size / 1024 / 1024).toFixed(2);
+                const uploadDate = new Date(file.UploadDate).toLocaleDateString('th-TH');
+                
+                content.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <i class="${this.getFileIcon(file.Type)} text-4xl text-blue-600"></i>
+                            <div>
+                                <h4 class="text-lg font-semibold">${file.Name}</h4>
+                                <p class="text-gray-500">${file.Category}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">ขนาดไฟล์</label>
+                                <p class="text-gray-900">${fileSize} MB</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">วันที่อัปโหลด</label>
+                                <p class="text-gray-900">${uploadDate}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">จำนวนการแชร์</label>
+                                <p class="text-gray-900">${file.Shares || 0} ครั้ง</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">ประเภทไฟล์</label>
+                                <p class="text-gray-900">${file.Type}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4 pt-4">
+                            <button class="btn-primary text-white px-6 py-2 rounded-lg flex-1" onclick="fileManager.downloadFile(${JSON.stringify(file).replace(/"/g, '&quot;')})">
+                                <i class="fas fa-download mr-2"></i>ดาวน์โหลด
+                            </button>
+                            <button class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg flex-1" onclick="fileManager.shareFile(${JSON.stringify(file).replace(/"/g, '&quot;')})">
+                                <i class="fas fa-share mr-2"></i>แชร์
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                modal.classList.remove('hidden');
+            }
+        }
+
+        // ==================== LIFF MANAGER ====================
+        class LiffManager {
+            constructor() {
+                this.liffId = CONFIG.LIFF_ID;
+                this.isReady = false;
+                this.initializeLiff();
+            }
+
+            async initializeLiff() {
+                if (!this.liffId || this.liffId === 'YOUR_LIFF_ID_HERE') {
+                    console.warn('LIFF ID not configured');
+                    return;
+                }
+
+                try {
+                    await liff.init({ liffId: this.liffId });
+                    this.isReady = true;
+                    this.updateLiffButton();
+                } catch (error) {
+                    console.error('LIFF initialization failed:', error);
+                }
+            }
+
+            updateLiffButton() {
+                const liffBtn = document.getElementById('liffConnectBtn');
+                if (this.isReady) {
+                    if (liff.isLoggedIn()) {
+                        liffBtn.innerHTML = '<i class="fab fa-line mr-2"></i>เชื่อมต่อแล้ว';
+                        liffBtn.classList.add('bg-green-500/20');
+                    } else {
+                        liffBtn.innerHTML = '<i class="fab fa-line mr-2"></i>เข้าสู่ระบบ LINE';
+                        liffBtn.addEventListener('click', () => {
+                            liff.login();
+                        });
+                    }
+                } else {
+                    liffBtn.innerHTML = '<i class="fab fa-line mr-2"></i>ไม่พร้อมใช้งาน';
+                    liffBtn.disabled = true;
+                }
+            }
+
+            isLiffReady() {
+                return this.isReady && liff.isLoggedIn();
+            }
+
+            async shareToLine(flexMessage) {
+                if (!this.isLiffReady()) {
+                    throw new Error('LIFF not ready or user not logged in');
+                }
+
+                try {
+                    if (liff.isApiAvailable('shareTargetPicker')) {
+                        await liff.shareTargetPicker([flexMessage]);
+                        Swal.fire({
+                            title: 'แชร์สำเร็จ',
+                            text: 'แชร์ไฟล์ผ่าน LINE เรียบร้อยแล้ว',
+                            icon: 'success',
+                            confirmButtonText: 'ตกลง'
+                        });
+                    } else {
+                        throw new Error('Share Target Picker not available');
+                    }
+                } catch (error) {
+                    console.error('LINE share error:', error);
+                    throw error;
+                }
+            }
+        }
+
+        // ==================== FLEX MESSAGE GENERATOR ====================
+        function generateFlexMessage(file) {
+            const fileSize = (file.Size / 1024 / 1024).toFixed(2);
+            const uploadDate = new Date(file.UploadDate).toLocaleDateString('th-TH');
+
+            return {
+                type: 'flex',
+                altText: `ไฟล์: ${file.Name}`,
+                contents: {
+                    type: 'bubble',
+                    header: {
+                        type: 'box',
+                        layout: 'vertical',
+                        contents: [
+                            {
+                                type: 'text',
+                                text: 'ระบบนิเทศการสอน',
+                                weight: 'bold',
+                                color: '#ffffff',
+                                size: 'sm'
+                            }
+                        ],
+                        backgroundColor: '#667eea',
+                        paddingAll: '20px'
+                    },
+                    body: {
+                        type: 'box',
+                        layout: 'vertical',
+                        contents: [
+                            {
+                                type: 'text',
+                                text: file.Name,
+                                weight: 'bold',
+                                size: 'lg',
+                                wrap: true
+                            },
+                            {
+                                type: 'box',
+                                layout: 'vertical',
+                                margin: 'lg',
+                                spacing: 'sm',
+                                contents: [
+                                    {
+                                        type: 'box',
+                                        layout: 'baseline',
+                                        spacing: 'sm',
+                                        contents: [
+                                            {
+                                                type: 'text',
+                                                text: 'หมวดหมู่',
+                                                color: '#aaaaaa',
+                                                size: 'sm',
+                                                flex: 2
+                                            },
+                                            {
+                                                type: 'text',
+                                                text: file.Category,
+                                                wrap: true,
+                                                color: '#666666',
+                                                size: 'sm',
+                                                flex: 5
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        type: 'box',
+                                        layout: 'baseline',
+                                        spacing: 'sm',
+                                        contents: [
+                                            {
+                                                type: 'text',
+                                                text: 'ขนาด',
+                                                color: '#aaaaaa',
+                                                size: 'sm',
+                                                flex: 2
+                                            },
+                                            {
+                                                type: 'text',
+                                                text: `${fileSize} MB`,
+                                                wrap: true,
+                                                color: '#666666',
+                                                size: 'sm',
+                                                flex: 5
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        type: 'box',
+                                        layout: 'baseline',
+                                        spacing: 'sm',
+                                        contents: [
+                                            {
+                                                type: 'text',
+                                                text: 'วันที่',
+                                                color: '#aaaaaa',
+                                                size: 'sm',
+                                                flex: 2
+                                            },
+                                            {
+                                                type: 'text',
+                                                text: uploadDate,
+                                                wrap: true,
+                                                color: '#666666',
+                                                size: 'sm',
+                                                flex: 5
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    footer: {
+                        type: 'box',
+                        layout: 'vertical',
+                        spacing: 'sm',
+                        contents: [
+                            {
+                                type: 'button',
+                                style: 'primary',
+                                height: 'sm',
+                                action: {
+                                    type: 'uri',
+                                    label: 'ดาวน์โหลด',
+                                    uri: file.DownloadURL
+                                },
+                                color: '#667eea'
+                            },
+                            {
+                                type: 'button',
+                                style: 'secondary',
+                                height: 'sm',
+                                action: {
+                                    type: 'uri',
+                                    label: 'ดูไฟล์',
+                                    uri: file.URL
+                                }
+                            }
+                        ],
+                        flex: 0
+                    }
+                }
+            };
+        }
+
+        // ==================== GLOBAL VARIABLES ====================
+        let apiClient;
+        let uploadManager;
+        let fileManager;
+        let liffManager;
+
+        // ==================== INITIALIZATION ====================
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Initialize API client
+            apiClient = new ApiClient(CONFIG.SCRIPT_URL);
+            
+            // Test connection
+            try {
+                await apiClient.ping();
+                console.log('API connection successful');
             } catch (error) {
-                console.error('Error generating report:', error);
-                showAlert('เกิดข้อผิดพลาดในการสร้างรายงาน: ' + error.message, 'error');
-            } finally {
-                hideLoading();
-            }
-        }
-
-        // Generate reports (from reports tab)
-        function generateReport() {
-            showAlert('ฟีเจอร์รายงานกำลังพัฒนา', 'success');
-        }
-
-        // Export to Excel
-        function exportToExcel() {
-            showAlert('ฟีเจอร์ส่งออก Excel กำลังพัฒนา', 'success');
-        }
-
-        // Utility functions
-        function formatDate(dateString) {
-            if (!dateString) return '';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('th-TH');
-        }
-
-        function showAlert(message, type = 'success') {
-            const alertContainer = document.getElementById('alertContainer');
-            const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
-            
-            alertContainer.appendChild(alertDiv);
-            
-            setTimeout(() => {
-                alertDiv.remove();
-            }, 5000);
-        }
-
-        function showLoading(message = 'กำลังโหลด...') {
-            const loadingDiv = document.createElement('div');
-            loadingDiv.id = 'globalLoading';
-            loadingDiv.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-                background: rgba(255,255,255,0.9); z-index: 9999; 
-                display: flex; align-items: center; justify-content: center;
-                font-size: 18px; font-weight: 600; color: #4f46e5;
-            `;
-            loadingDiv.innerHTML = `<div class="loading">${message}</div>`;
-            document.body.appendChild(loadingDiv);
-        }
-
-        function hideLoading() {
-            const loadingDiv = document.getElementById('globalLoading');
-            if (loadingDiv) {
-                loadingDiv.remove();
-            }
-        }
-
-        // LINE Integration - Share Target Picker
-        function shareToLine() {
-            if (typeof liff !== 'undefined' && liff.isLoggedIn()) {
-                liff.shareTargetPicker([{
-                    type: 'text',
-                    text: 'ระบบนิเทศการสอนออนไลน์\nสามารถใช้งานได้ที่: ' + window.location.href
-                }]).then(() => {
-                    console.log('Share target picker opened');
-                }).catch((err) => {
-                    console.log('Error opening share target picker', err);
+                console.error('API connection failed:', error);
+                Swal.fire({
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้',
+                    icon: 'error',
+                    confirmButtonText: 'ตกลง'
                 });
             }
-        }
-
-        // PWA Support
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            deferredPrompt = e;
-            showInstallPrompt();
+            
+            // Initialize managers
+            uploadManager = new FileUploadManager(apiClient);
+            fileManager = new FileManager(apiClient);
+            liffManager = new LiffManager();
+            
+            // Initialize modal event listeners
+            initializeModalEventListeners();
+            
+            // Initialize system if needed
+            try {
+                await apiClient.request('init');
+            } catch (error) {
+                console.warn('System initialization warning:', error);
+            }
         });
 
-        function showInstallPrompt() {
-            const installBanner = document.createElement('div');
-            installBanner.style.cssText = `
-                position: fixed; bottom: 20px; left: 20px; right: 20px; 
-                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
-                color: white; padding: 15px; border-radius: 12px; 
-                box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 1000;
-                display: flex; justify-content: space-between; align-items: center;
-            `;
-            installBanner.innerHTML = `
-                <div>
-                    <div style="font-weight: 600;">ติดตั้งแอป</div>
-                    <div style="font-size: 14px; opacity: 0.9;">เพื่อการใช้งานที่สะดวกยิ่งขึ้น</div>
-                </div>
-                <div>
-                    <button onclick="installApp()" style="background: white; color: #4f46e5; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; margin-right: 10px; cursor: pointer;">ติดตั้ง</button>
-                    <button onclick="this.parentElement.parentElement.remove()" style="background: transparent; color: white; border: 1px solid white; padding: 8px 16px; border-radius: 6px; cursor: pointer;">ไม่ใช่ตอนนี้</button>
-                </div>
-            `;
-            document.body.appendChild(installBanner);
+        // ==================== MODAL EVENT LISTENERS ====================
+        function initializeModalEventListeners() {
+            // Close modals
+            document.getElementById('closeModal')?.addEventListener('click', () => {
+                document.getElementById('uploadModal').classList.add('hidden');
+            });
+            
+            document.getElementById('closeDetailModal')?.addEventListener('click', () => {
+                document.getElementById('fileDetailModal').classList.add('hidden');
+            });
+            
+            // Click outside to close modals
+            document.querySelectorAll('.modal-overlay').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+            
+            // Settings button
+            document.getElementById('settingsBtn')?.addEventListener('click', () => {
+                showSettingsModal();
+            });
         }
 
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
+        // ==================== SETTINGS MODAL ====================
+        function showSettingsModal() {
+            Swal.fire({
+                title: 'การตั้งค่า',
+                html: `
+                    <div class="text-left space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-2">URL ของ Google Apps Script</label>
+                            <input type="text" id="scriptUrlInput" class="w-full px-3 py-2 border rounded-lg" value="${CONFIG.SCRIPT_URL}" placeholder="https://script.google.com/...">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-2">LIFF ID</label>
+                            <input type="text" id="liffIdInput" class="w-full px-3 py-2 border rounded-lg" value="${CONFIG.LIFF_ID}" placeholder="1234567890-abcdefgh">
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            <p>• URL ของ Google Apps Script Web App</p>
+                            <p>• LIFF ID สำหรับการเชื่อมต่อ LINE</p>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก',
+                confirmButtonColor: '#667eea',
+                preConfirm: () => {
+                    const scriptUrl = document.getElementById('scriptUrlInput').value;
+                    const liffId = document.getElementById('liffIdInput').value;
+                    
+                    if (!scriptUrl) {
+                        Swal.showValidationMessage('กรุณาใส่ URL ของ Google Apps Script');
+                        return false;
                     }
-                    deferredPrompt = null;
+                    
+                    return { scriptUrl, liffId };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    CONFIG.SCRIPT_URL = result.value.scriptUrl;
+                    CONFIG.LIFF_ID = result.value.liffId;
+                    
+                    // Reinitialize with new settings
+                    location.reload();
+                }
+            });
+        }
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('th-TH', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function showNotification(title, message, type = 'info') {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+
+            Toast.fire({
+                icon: type,
+                title: title,
+                text: message
+            });
+        }
+
+        // ==================== ERROR HANDLING ====================
+        window.addEventListener('error', (event) => {
+            console.error('Global error:', event.error);
+            showNotification('เกิดข้อผิดพลาด', 'มีข้อผิดพลาดเกิดขึ้นในระบบ', 'error');
+        });
+
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('Unhandled promise rejection:', event.reason);
+            showNotification('เกิดข้อผิดพลาด', 'การเชื่อมต่อขัดข้อง', 'error');
+        });
+
+        // ==================== KEYBOARD SHORTCUTS ====================
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+U for upload
+            if (e.ctrlKey && e.key === 'u') {
+                e.preventDefault();
+                document.getElementById('fileInput').click();
+            }
+            
+            // Escape to close modals
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay').forEach(modal => {
+                    modal.classList.add('hidden');
                 });
             }
-        }
+            
+            // Ctrl+R to refresh files
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                fileManager.loadFiles();
+                showNotification('รีเฟรช', 'รีเฟรชรายการไฟล์แล้ว', 'info');
+            }
+        });
 
-        // Service Worker Registration
+        // ==================== SERVICE WORKER ====================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then((registration) => {
+                    .then(registration => {
                         console.log('SW registered: ', registration);
                     })
-                    .catch((registrationError) => {
+                    .catch(registrationError => {
                         console.log('SW registration failed: ', registrationError);
                     });
             });
         }
 
-        // Auto-save draft functionality
-        let autoSaveTimer;
-        function startAutoSave() {
-            clearTimeout(autoSaveTimer);
-            autoSaveTimer = setTimeout(() => {
-                saveDraft();
-            }, 30000); // Auto-save every 30 seconds
-        }
-
-        function saveDraft() {
-            const formData = new FormData(document.getElementById('supervisionForm'));
-            const draftData = Object.fromEntries(formData.entries());
-            
-            // Add evaluation scores
-            masterItems.forEach(item => {
-                const scoreElement = document.querySelector(`input[name="score_${item.Category}_${item.ItemNo}"]:checked`);
-                const commentElement = document.getElementById(`comment_${item.Category}_${item.ItemNo}`);
-                
-                if (scoreElement) {
-                    draftData[`score_${item.Category}_${item.ItemNo}`] = scoreElement.value;
-                }
-                if (commentElement && commentElement.value) {
-                    draftData[`comment_${item.Category}_${item.ItemNo}`] = commentElement.value;
-                }
-            });
-
-            try {
-                const draftKey = 'supervision_draft_' + new Date().toDateString();
-                sessionStorage.setItem(draftKey, JSON.stringify({
-                    data: draftData,
-                    timestamp: new Date().toISOString()
-                }));
-                console.log('Draft saved automatically');
-            } catch (error) {
-                console.log('Could not save draft:', error);
-            }
-        }
-
-        function loadDraft() {
-            try {
-                const draftKey = 'supervision_draft_' + new Date().toDateString();
-                const draftStr = sessionStorage.getItem(draftKey);
-                
-                if (draftStr) {
-                    const draft = JSON.parse(draftStr);
-                    const draftAge = new Date() - new Date(draft.timestamp);
-                    
-                    // Only load draft if it's less than 24 hours old
-                    if (draftAge < 24 * 60 * 60 * 1000) {
-                        if (confirm('พบข้อมูลแบบร่างที่บันทึกไว้ ต้องการโหลดข้อมูลนี้หรือไม่?')) {
-                            Object.keys(draft.data).forEach(key => {
-                                const element = document.getElementById(key) || 
-                                              document.querySelector(`input[name="${key}"]`) ||
-                                              document.querySelector(`textarea[name="${key}"]`) ||
-                                              document.querySelector(`select[name="${key}"]`);
-                                
-                                if (element) {
-                                    if (element.type === 'radio') {
-                                        const radioBtn = document.querySelector(`input[name="${key}"][value="${draft.data[key]}"]`);
-                                        if (radioBtn) radioBtn.checked = true;
-                                    } else {
-                                        element.value = draft.data[key];
-                                    }
-                                }
-                            });
-                            showAlert('โหลดข้อมูลแบบร่างสำเร็จ', 'success');
-                        }
-                    }
-                }
-            } catch (error) {
-                console.log('Could not load draft:', error);
-            }
-        }
-
-        // Add event listeners for auto-save
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load draft on page load
-            setTimeout(loadDraft, 1000);
-            
-            // Start auto-save when user starts typing
-            document.getElementById('supervisionForm').addEventListener('input', startAutoSave);
-            document.getElementById('supervisionForm').addEventListener('change', startAutoSave);
-        });
-
-        // Advanced search and filter functionality
-        function searchRecords() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.querySelectorAll('.records-table tbody tr');
-            
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchTerm) ? '' : 'none';
-            });
-        }
-
-        function filterByDateRange() {
-            const fromDate = document.getElementById('filterFromDate').value;
-            const toDate = document.getElementById('filterToDate').value;
-            const rows = document.querySelectorAll('.records-table tbody tr');
-            
-            rows.forEach(row => {
-                const dateCell = row.cells[1].textContent;
-                const rowDate = new Date(dateCell);
-                
-                let show = true;
-                if (fromDate && rowDate < new Date(fromDate)) show = false;
-                if (toDate && rowDate > new Date(toDate)) show = false;
-                
-                row.style.display = show ? '' : 'none';
-            });
-        }
-
-        // Print functionality
-        function printSupervisionForm() {
-            const printWindow = window.open('', '_blank');
-            const formHTML = document.getElementById('supervisionForm').outerHTML;
-            
-            printWindow.document.write(`
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>แบบฟอร์มการนิเทศ</title>
-                    <style>
-                        body { font-family: 'Sarabun', sans-serif; margin: 20px; }
-                        .form-group { margin-bottom: 15px; }
-                        .form-group label { font-weight: bold; display: block; margin-bottom: 5px; }
-                        .form-group input, .form-group select, .form-group textarea { 
-                            width: 100%; padding: 8px; border: 1px solid #ddd; 
-                        }
-                        .evaluation-section { border: 1px solid #ddd; padding: 15px; margin: 10px 0; }
-                        .evaluation-item { margin: 10px 0; padding: 10px; border-bottom: 1px solid #eee; }
-                        @media print { 
-                            .btn { display: none; }
-                            .nav-tabs { display: none; }
-                        }
-                    </style>
-                </head>
-                <body>
-                    <h1>แบบบันทึกการนิเทศการจัดการเรียนรู้และการจัดการชั้นเรียน</h1>
-                    ${formHTML}
-                </body>
-                </html>
-            `);
-            
-            printWindow.document.close();
-            printWindow.focus();
-            setTimeout(() => {
-                printWindow.print();
-                printWindow.close();
-            }, 250);
-        }
-
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey || e.metaKey) {
-                switch(e.key) {
-                    case 's':
-                        e.preventDefault();
-                        document.getElementById('supervisionForm').dispatchEvent(new Event('submit'));
-                        break;
-                    case 'p':
-                        e.preventDefault();
-                        printSupervisionForm();
-                        break;
-                    case 'r':
-                        e.preventDefault();
-                        loadSupervisionRecords();
-                        break;
-                }
-            }
-        });
-
-        // Offline support
-        window.addEventListener('online', function() {
-            showAlert('กลับมาออนไลน์แล้ว', 'success');
-        });
-
-        window.addEventListener('offline', function() {
-            showAlert('กำลังใช้งานแบบออฟไลน์', 'error');
-        });
-
-        // Performance monitoring
-        window.addEventListener('load', function() {
+        // ==================== PERFORMANCE MONITORING ====================
+        window.addEventListener('load', () => {
             if ('performance' in window) {
                 const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
-                console.log('Page load time:', loadTime + 'ms');
+                console.log(`Page load time: ${loadTime}ms`);
                 
                 if (loadTime > 3000) {
                     console.warn('Slow page load detected');
@@ -1271,162 +1460,74 @@
             }
         });
 
-        // Error boundary
-        window.addEventListener('error', function(e) {
-            console.error('Global error:', e.error);
-            showAlert('เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้ง', 'error');
-        });
-
-        window.addEventListener('unhandledrejection', function(e) {
-            console.error('Unhandled promise rejection:', e.reason);
-            showAlert('เกิดข้อผิดพลาดในการประมวลผล กรุณาลองใหม่อีกครั้ง', 'error');
-        });
-
-        // Theme switcher (optional)
-        function toggleTheme() {
-            document.body.classList.toggle('dark-theme');
-            localStorage.setItem('theme', document.body.classList.contains('dark-theme') ? 'dark' : 'light');
+        // ==================== RESPONSIVE HELPERS ====================
+        function isMobile() {
+            return window.innerWidth <= 768;
         }
 
-        // Load saved theme
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-theme');
+        function adaptToScreenSize() {
+            const container = document.querySelector('.container');
+            if (isMobile()) {
+                container.classList.add('px-2');
+            } else {
+                container.classList.remove('px-2');
+            }
+        }
+
+        window.addEventListener('resize', adaptToScreenSize);
+        adaptToScreenSize();
+
+        // ==================== ACCESSIBILITY ====================
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                document.body.classList.add('keyboard-navigation');
             }
         });
 
-        // Add CSS for dark theme
-        const darkThemeCSS = `
-            .dark-theme {
-                --bg-color: #1a1a1a;
-                --text-color: #ffffff;
-                --card-bg: #2d2d2d;
-                --border-color: #404040;
-            }
-            
-            .dark-theme .container {
-                background: var(--card-bg);
-                color: var(--text-color);
-            }
-            
-            .dark-theme .evaluation-section {
-                background: var(--bg-color);
-                border-color: var(--border-color);
+        document.addEventListener('mousedown', () => {
+            document.body.classList.remove('keyboard-navigation');
+        });
+
+        // Add focus styles for keyboard navigation
+        const style = document.createElement('style');
+        style.textContent = `
+            .keyboard-navigation *:focus {
+                outline: 2px solid #667eea !important;
+                outline-offset: 2px !important;
             }
         `;
+        document.head.appendChild(style);
 
-        // Inject dark theme CSS
-        const styleSheet = document.createElement('style');
-        styleSheet.textContent = darkThemeCSS;
-        document.head.appendChild(styleSheet);
-
-        // Accessibility improvements
-        function improveAccessibility() {
-            // Add ARIA labels
-            document.querySelectorAll('input[required]').forEach(input => {
-                input.setAttribute('aria-required', 'true');
-            });
-            
-            // Add focus management
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Tab') {
-                    // Ensure visible focus indicators
-                    const activeElement = document.activeElement;
-                    if (activeElement) {
-                        activeElement.style.outline = '2px solid #4f46e5';
-                    }
-                }
-            });
+        // ==================== DEBUG HELPERS ====================
+        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+            window.debugMode = true;
+            window.apiClient = () => apiClient;
+            window.uploadManager = () => uploadManager;
+            window.fileManager = () => fileManager;
+            window.liffManager = () => liffManager;
+            console.log('Debug mode enabled. Access managers via window.*Manager()');
         }
 
-        // Initialize accessibility on load
-        document.addEventListener('DOMContentLoaded', improveAccessibility);
-
-        // Export functions for testing
-        if (typeof module !== 'undefined' && module.exports) {
-            module.exports = {
-                showAlert,
-                formatDate,
-                generateSupervisionID: () => CONFIG.GAS_URL // Mock for testing
-            };
+        // ==================== ANALYTICS (OPTIONAL) ====================
+        function trackEvent(category, action, label = '') {
+            console.log(`Analytics: ${category} - ${action} - ${label}`);
+            // Implement your analytics tracking here
         }
-    </script>
 
-    <!-- LINE LIFF SDK -->
-    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    
-    <!-- Service Worker for PWA -->
-    <script>
-        // Service Worker code will be generated separately
-        const swCode = `
-            const CACHE_NAME = 'supervision-app-v1';
-            const urlsToCache = [
-                '/',
-                '/index.html',
-                '/manifest.json'
-            ];
+        // Track file uploads
+        document.addEventListener('fileUploaded', (e) => {
+            trackEvent('File', 'Upload', e.detail.fileName);
+        });
 
-            self.addEventListener('install', function(event) {
-                event.waitUntil(
-                    caches.open(CACHE_NAME)
-                        .then(function(cache) {
-                            return cache.addAll(urlsToCache);
-                        })
-                );
-            });
+        // Track file downloads
+        document.addEventListener('fileDownloaded', (e) => {
+            trackEvent('File', 'Download', e.detail.fileName);
+        });
 
-            self.addEventListener('fetch', function(event) {
-                event.respondWith(
-                    caches.match(event.request)
-                        .then(function(response) {
-                            if (response) {
-                                return response;
-                            }
-                            return fetch(event.request);
-                        }
-                    )
-                );
-            });
-        `;
-        
-        // Create service worker file dynamically
-        if ('serviceWorker' in navigator) {
-            const blob = new Blob([swCode], { type: 'application/javascript' });
-            const swUrl = URL.createObjectURL(blob);
-            
-            navigator.serviceWorker.register(swUrl)
-                .then(registration => console.log('SW registered'))
-                .catch(error => console.log('SW registration failed'));
-        }
-    </script>
-
-    <!-- PWA Manifest -->
-    <script>
-        const manifest = {
-            name: "ระบบนิเทศการสอน",
-            short_name: "นิเทศการสอน",
-            description: "แบบบันทึกการนิเทศการจัดการเรียนรู้และการจัดการชั้นเรียน",
-            start_url: "/",
-            display: "standalone",
-            background_color: "#ffffff",
-            theme_color: "#4f46e5",
-            icons: [
-                {
-                    src: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIzMiIgZmlsbD0iIzRmNDZlNSIvPjx0ZXh0IHg9Ijk2IiB5PSIxMTAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI2MCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuC4meC4tOC5gOC4l+C4qDwvdGV4dD48L3N2Zz4=",
-                    sizes: "192x192",
-                    type: "image/svg+xml"
-                }
-            ]
-        };
-        
-        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-        const manifestUrl = URL.createObjectURL(manifestBlob);
-        
-        const linkElement = document.createElement('link');
-        linkElement.rel = 'manifest';
-        linkElement.href = manifestUrl;
-        document.head.appendChild(linkElement);
+        // Track file shares
+        document.addEventListener('fileShared', (e) => {
+            trackEvent('File', 'Share', e.detail.fileName);
+        });
     </script>
 </body>
 </html>
